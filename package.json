@@ -1,0 +1,52 @@
+{
+    "name": "@amazinglynormal/prefetch",
+    "version": "1.0.0",
+    "description": "Prefetch is a zero-dependency library for dynamically prefetching or prerendering web pages.",
+    "type": "module",
+    "files": [
+        "dist"
+    ],
+    "main": ".dist/prefetch.umd.js",
+    "module": "./dist/prefetch.js",
+    "exports": {
+        ".": {
+            "import": "./dist/prefetch.js",
+            "require": "./dist/prefetch.umd.js"
+        }
+    },
+    "types": "./dist/prefetch.d.ts",
+    "scripts": {
+        "build": "vite build",
+        "test": "playwright test",
+        "lint": "eslint lib/**/*.{js,ts,json}",
+        "format": "prettier --write lib/**/*.{html, js,ts,json,md,css}",
+        "first-changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
+        "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md"
+    },
+    "keywords": [
+        "prefetch",
+        "prerender",
+        "navigation",
+        "performance"
+    ],
+    "homepage": "https://github.com/amazinglynormal/prefetch",
+    "bugs": "https://github.com/amazinglynormal/prefetch/issues",
+    "author": "Stephen Brady",
+    "license": "ISC",
+    "publishConfig": {
+        "access": "public"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.29.0",
+        "@playwright/test": "^1.53.0",
+        "@types/node": "^24.0.3",
+        "conventional-changelog-cli": "^5.0.0",
+        "eslint": "^9.29.0",
+        "eslint-config-prettier": "^10.1.5",
+        "prettier": "^3.5.3",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.34.1",
+        "vite": "^6.3.5",
+        "vite-plugin-dts": "^4.5.4"
+    }
+}
