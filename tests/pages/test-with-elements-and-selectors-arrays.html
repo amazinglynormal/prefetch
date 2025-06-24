@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="styles.css" />
+        <title>Prefetch Test Page</title>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Prefetch Test Page</h1>
+            <section class="section-1">
+                <p>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Delectus nam, eaque vero earum recusandae vitae repellendus
+                    beatae quibusdam ullam itaque distinctio expedita,
+                    temporibus sapiente minus provident ipsum fugiat dolorum
+                    autem, aliquam incidunt? Eaque repellendus enim, dicta culpa
+                    itaque provident consequatur veniam sit quam optio libero
+                    commodi corporis quas. Pariatur, ipsam?
+                </p>
+                <p>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Libero quaerat eveniet corporis architecto ullam omnis
+                    maxime sequi beatae, minus quis, quisquam aliquid eius
+                    incidunt aut debitis harum quidem odio at voluptas et.
+                    Quibusdam sapiente rem eum perferendis obcaecati numquam,
+                    totam cum dolorem, ea hic culpa!
+                </p>
+                <a href="/tests/pages/page1" class="test-link-one"
+                    >go to page 1</a
+                >
+                <p>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Doloribus mollitia totam sint quaerat rem dolor iusto, illo
+                    ratione alias voluptate, non nam repellat at molestiae hic
+                    consectetur unde est fugiat eum id asperiores? Nemo nisi,
+                    harum odio optio itaque cum, amet ex blanditiis laudantium
+                    et tempora cupiditate accusamus aut expedita cumque maiores.
+                </p>
+            </section>
+            <section class="section-2">
+                <p>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Delectus nam, eaque vero earum recusandae vitae repellendus
+                    beatae quibusdam ullam itaque distinctio expedita,
+                    temporibus sapiente minus provident ipsum fugiat dolorum
+                    autem, aliquam incidunt? Eaque repellendus enim, dicta culpa
+                    itaque provident consequatur veniam sit quam optio libero
+                    commodi corporis quas. Pariatur, ipsam?
+                </p>
+                <p>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Libero quaerat eveniet corporis architecto ullam omnis
+                    maxime sequi beatae, minus quis, quisquam aliquid eius
+                    incidunt aut debitis harum quidem odio at voluptas et.
+                    Quibusdam sapiente rem eum perferendis obcaecati numquam,
+                    totam cum dolorem, ea hic culpa!
+                </p>
+                <a href="/tests/pages/page2" class="test-link-two"
+                    >go to page 2</a
+                >
+                <p>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Doloribus mollitia totam sint quaerat rem dolor iusto, illo
+                    ratione alias voluptate, non nam repellat at molestiae hic
+                    consectetur unde est fugiat eum id asperiores? Nemo nisi,
+                    harum odio optio itaque cum, amet ex blanditiis laudantium
+                    et tempora cupiditate accusamus aut expedita cumque maiores.
+                </p>
+            </section>
+            <section class="section-3">
+                <p>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Delectus nam, eaque vero earum recusandae vitae repellendus
+                    beatae quibusdam ullam itaque distinctio expedita,
+                    temporibus sapiente minus provident ipsum fugiat dolorum
+                    autem, aliquam incidunt? Eaque repellendus enim, dicta culpa
+                    itaque provident consequatur veniam sit quam optio libero
+                    commodi corporis quas. Pariatur, ipsam?
+                </p>
+                <a href="/tests/pages/page3" class="test-link-three"
+                    >go to page 3</a
+                >
+                <a href="https://google.com">google.com</a>
+                <p>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Libero quaerat eveniet corporis architecto ullam omnis
+                    maxime sequi beatae, minus quis, quisquam aliquid eius
+                    incidunt aut debitis harum quidem odio at voluptas et.
+                    Quibusdam sapiente rem eum perferendis obcaecati numquam,
+                    totam cum dolorem, ea hic culpa!
+                </p>
+                <p>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Doloribus mollitia totam sint quaerat rem dolor iusto, illo
+                    ratione alias voluptate, non nam repellat at molestiae hic
+                    consectetur unde est fugiat eum id asperiores? Nemo nisi,
+                    harum odio optio itaque cum, amet ex blanditiis laudantium
+                    et tempora cupiditate accusamus aut expedita cumque maiores.
+                </p>
+            </section>
+        </div>
+        <script type="module">
+            import { watch } from "../../dist/prefetch.js";
+            window.addEventListener("DOMContentLoaded", () => {
+                const link = document.querySelector(".test-link-three");
+                watch({ elements: link, selectors: [".test-link-two"] });
+            });
+        </script>
+    </body>
+</html>
