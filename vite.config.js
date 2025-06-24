@@ -11,6 +11,7 @@ export default defineConfig({
             entry: resolve(__dirname, "lib/index.ts"),
             name: "Prefetch",
             fileName: "prefetch",
+            formats: ["es", "umd"],
         },
     },
     plugins: [dts()],

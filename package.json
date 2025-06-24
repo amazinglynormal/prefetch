@@ -1,6 +1,6 @@
 {
     "name": "@amazinglynormal/prefetch",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "description": "Prefetch is a zero-dependency library for dynamically prefetching or prerendering web pages.",
     "type": "module",
     "files": [
@@ -16,10 +16,11 @@
     },
     "types": "./dist/prefetch.d.ts",
     "scripts": {
+        "dev": "vite",
         "build": "vite build",
         "test": "playwright test",
         "lint": "eslint lib/**/*.{js,ts,json}",
-        "format": "prettier --write lib/**/*.{html, js,ts,json,md,css}",
+        "format": "prettier --write lib/**/*.{html,js,ts,json,md,css}",
         "first-changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
         "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md"
     },
