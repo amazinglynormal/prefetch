@@ -36,7 +36,7 @@ no prefetch request will be sent.
 
 `watch` can be confgured by passing an _optional_ options object.
 
-#### options.elements: HTMLAnchorElement | NodeList
+### options.elements: HTMLAnchorElement | NodeList
 
 **Note:** If neither options.elements or options.selectors are passed in the options object, default selector of "a" is used.
 
@@ -44,7 +44,7 @@ _Default:_ null
 
 The anchor element `<a>` or NodeList of anchor elements you wish to watch.
 
-#### options.selectors: string[]
+### options.selectors: string[]
 
 **Note:** If neither options.elements or options.selectors are passed in the options object, default selector of "a" is used.
 
@@ -52,19 +52,19 @@ _Default:_ null
 
 An array of CSS selectors to query in the document and watch.
 
-#### options.delayMilliseconds: number
+### options.delayMilliseconds: number
 
 _Default:_ 0
 
 The number of milliseconds anchor element `<a>` must be in the viewport before prefetch request is triggered.
 
-#### options.ignore: string[]
+### options.ignore: string[]
 
 _Default:_ []
 
 An array of [hrefs](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a#href) you want ignored. This option overrides both options.elements and options.selectors.
 
-#### options.inViewThreshold: number (0 - 1)
+### options.inViewThreshold: number (0 - 1)
 
 _Default:_ 0
 
