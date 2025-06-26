@@ -77,4 +77,4 @@ The percentage of the element visible in the viewport before prefetch request is
 
 ## License
 
-[ISC](./LICENSE)
+[MIT](./LICENSE)
