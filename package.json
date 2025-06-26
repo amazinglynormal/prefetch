@@ -33,7 +33,7 @@
     "homepage": "https://github.com/amazinglynormal/prefetch",
     "bugs": "https://github.com/amazinglynormal/prefetch/issues",
     "author": "Stephen Brady",
-    "license": "ISC",
+    "license": "MIT",
     "publishConfig": {
         "access": "public"
     },
