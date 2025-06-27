@@ -1,7 +1,15 @@
 import { isSaveDataEnabled, isSlowConnectionType } from "./network-information";
 import { prefetch } from "./prefetch";
 
+type IdleCallback = (
+    callback: IdleRequestCallback,
+    options?: IdleRequestOptions,
+) => number;
+
+type TriggerEvent = "inView" | "onHoverOrFocus";
+
 interface Options {
+    triggerEvent?: TriggerEvent;
     elements?: HTMLAnchorElement | NodeList;
     selectors?: string[];
     ignore?: string[];
@@ -15,17 +23,94 @@ export function watch(options?: Options): void {
     }
 
     // sets options or uses defaults
+    const triggerEvent = options?.triggerEvent || "inView";
     const elements = options?.elements;
     const selectors = options?.selectors;
     const ignore = options?.ignore || [];
     const delayMilliseconds = options?.delayMilliseconds || 0;
     const inViewThreshold = options?.inViewThreshold || 0;
 
-    const idleCallback = useIdleCallback();
+    const idleCallback: IdleCallback = useIdleCallback();
 
     const toFetch = new Set<string>();
     const fetched = new Set<string>();
 
+    const links = assembleListOfLinks(elements, selectors);
+
+    switch (triggerEvent) {
+        case "inView":
+            useIntersectionObserver(
+                links,
+                toFetch,
+                fetched,
+                idleCallback,
+                delayMilliseconds,
+                inViewThreshold,
+                ignore,
+            );
+            break;
+        case "onHoverOrFocus":
+            useEventListener(
+                links,
+                toFetch,
+                fetched,
+                idleCallback,
+                triggerEvent,
+                ignore,
+            );
+            break;
+    }
+}
+
+function useEventListener(
+    elements: HTMLAnchorElement[],
+    toFetch: Set<string>,
+    fetched: Set<string>,
+    idleCallback: IdleCallback,
+    triggerEvent: TriggerEvent,
+    ignore: string[],
+) {
+    const HOVER_FOCUS_EVENTS: (keyof HTMLElementEventMap)[] = [
+        "mouseover",
+        "focus",
+    ];
+
+    let events: (keyof HTMLElementEventMap)[] = [];
+
+    switch (triggerEvent) {
+        case "onHoverOrFocus":
+            events = HOVER_FOCUS_EVENTS;
+    }
+
+    elements.forEach((element) => {
+        if (!shouldIgnore(new URL(element.href), ignore)) {
+            events.forEach((event) =>
+                element.addEventListener(event, (event) => {
+                    const link = event.currentTarget as HTMLAnchorElement;
+
+                    if (!fetched.has(link.href)) {
+                        toFetch.add(link.href);
+                        idleCallback(() => {
+                            prefetch(toFetch);
+                        });
+
+                        fetched.add(link.href);
+                    }
+                }),
+            );
+        }
+    });
+}
+
+function useIntersectionObserver(
+    elements: HTMLAnchorElement[],
+    toFetch: Set<string>,
+    fetched: Set<string>,
+    idleCallback: IdleCallback,
+    delayMilliseconds: number,
+    inViewThreshold: number,
+    ignore: string[],
+) {
     const observer = new IntersectionObserver(
         (entries, observer) => {
             entries.forEach((entry) => {
@@ -61,11 +146,9 @@ export function watch(options?: Options): void {
         { threshold: inViewThreshold },
     );
 
-    const links = assembleListOfLinks(elements, selectors);
-
-    links.forEach((link) => {
-        if (!shouldIgnore(new URL(link.href), ignore)) {
-            observer.observe(link);
+    elements.forEach((element) => {
+        if (!shouldIgnore(new URL(element.href), ignore)) {
+            observer.observe(element);
         }
     });
 }
@@ -147,7 +230,7 @@ function useIdleCallback() {
     );
 }
 
-function useDelay(callback: () => void, delayMilliseconds: number) {
+function useDelay(callback: () => void, delayMilliseconds: number): void {
     if (delayMilliseconds === 0) {
         callback();
         return;
