@@ -36,6 +36,17 @@ no prefetch request will be sent.
 
 `watch` can be confgured by passing an _optional_ options object.
 
+### options.triggerEvent: "inView" | "onHoverOrFocus"
+
+_Default:_ "inView"
+
+The UI event that triggers a prefetch request.
+
+- `"inView"`: prefetch is triggered when element comes into viewport.
+- `"onHoverOrFocus"`: prefetch is triggered when user hovers over the element with a mouse or when the element has received focus.
+
+**Note:** Most Mobile devices do not have a "hover" state because there's no mouse pointer and focus can also be handled a bit differently on mobile browsers. Therefore, `"onHoverOrFocus"` may only be an appropriate option if you're primarily targeting desktop users.
+
 ### options.elements: HTMLAnchorElement | NodeList
 
 **Note:** If neither options.elements or options.selectors are passed in the options object, default selector of "a" is used.
