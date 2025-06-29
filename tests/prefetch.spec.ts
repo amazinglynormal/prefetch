@@ -427,3 +427,83 @@ test("does not prefetch until options.threshold is satisfied", async ({
     expect(prefetched).toContainEqual(URL_ONE);
     expect(prefetched).toContainEqual(URL_TWO);
 });
+
+test("prefetch request is triggered by hover on element (desktop)", async ({
+    page,
+}) => {
+    const prefetchPromises = [URL_ONE, URL_THREE].map((url) =>
+        page.waitForRequest((req) => req.url().includes(url)),
+    );
+
+    const prefetched: string[] = [];
+    page.on("request", (req) => {
+        if (req.url().includes("pages/page")) {
+            // remove http://localhost:5173
+            const url = req.url().slice(21);
+            prefetched.push(url);
+        }
+    });
+
+    await page.goto(`${server}test-with-on-hover-or-focus.html`);
+
+    await expect(page).toHaveTitle(/Prefetch Test Page/);
+
+    const link = page.getByRole("link", { name: "go to page 1" });
+    const link2 = page.getByRole("link", { name: "go to page 2" });
+    const link3 = page.getByRole("link", { name: "go to page 3" });
+
+    await expect(link).toBeInViewport();
+    await link.hover();
+
+    await link2.scrollIntoViewIfNeeded();
+    await expect(link2).toBeInViewport();
+
+    await link3.hover();
+    await expect(link3).toBeInViewport();
+
+    await Promise.all(prefetchPromises);
+
+    expect(prefetched.length).toBe(2);
+    expect(prefetched).toContainEqual(URL_ONE);
+    expect(prefetched).toContainEqual(URL_THREE);
+});
+
+test("prefetch is triggered by focusing element (desktop)", async ({
+    page,
+}) => {
+    const prefetchPromises = [URL_ONE, URL_THREE].map((url) =>
+        page.waitForRequest((req) => req.url().includes(url)),
+    );
+
+    const prefetched: string[] = [];
+    page.on("request", (req) => {
+        if (req.url().includes("pages/page")) {
+            // remove http://localhost:5173
+            const url = req.url().slice(21);
+            prefetched.push(url);
+        }
+    });
+
+    await page.goto(`${server}test-with-on-hover-or-focus.html`);
+
+    await expect(page).toHaveTitle(/Prefetch Test Page/);
+
+    const link = page.getByRole("link", { name: "go to page 1" });
+    const link2 = page.getByRole("link", { name: "go to page 2" });
+    const link3 = page.getByRole("link", { name: "go to page 3" });
+
+    await expect(link).toBeInViewport();
+    await link.hover();
+
+    await link2.scrollIntoViewIfNeeded();
+    await expect(link2).toBeInViewport();
+
+    await link3.hover();
+    await expect(link3).toBeInViewport();
+
+    await Promise.all(prefetchPromises);
+
+    expect(prefetched.length).toBe(2);
+    expect(prefetched).toContainEqual(URL_ONE);
+    expect(prefetched).toContainEqual(URL_THREE);
+});
