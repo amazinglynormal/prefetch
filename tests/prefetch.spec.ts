@@ -1,4 +1,4 @@
-import { test, expect, chromium, firefox, webkit } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 const server = "/tests/pages/";
 
@@ -505,5 +505,120 @@ test("prefetch is triggered by focusing element (desktop)", async ({
 
     expect(prefetched.length).toBe(2);
     expect(prefetched).toContainEqual(URL_ONE);
+    expect(prefetched).toContainEqual(URL_THREE);
+});
+
+test("prefetch is triggered by pointerdown event", async ({ page }) => {
+    const prefetchPromises = [URL_ONE, URL_THREE].map((url) =>
+        page.waitForRequest((req) => req.url().includes(url)),
+    );
+
+    const prefetched: string[] = [];
+    page.on("request", (req) => {
+        if (req.url().includes("pages/page")) {
+            // remove http://localhost:5173
+            const url = req.url().slice(21);
+            prefetched.push(url);
+        }
+    });
+
+    await page.goto(`${server}test-with-on-pointer-or-key-down.html`);
+
+    await expect(page).toHaveTitle(/Prefetch Test Page/);
+
+    const link = page.getByRole("link", { name: "go to page 1" });
+    const link3 = page.getByRole("link", { name: "go to page 3" });
+
+    await expect(link).toBeInViewport();
+    await link.dispatchEvent("pointerdown");
+
+    await link3.dispatchEvent("pointerdown");
+
+    await Promise.all(prefetchPromises);
+
+    expect(prefetched.length).toBe(2);
+    expect(prefetched).toContainEqual(URL_ONE);
+    expect(prefetched).toContainEqual(URL_THREE);
+});
+
+test("prefetch is triggered by keydown event (desktop)", async ({
+    page,
+}, testInfo) => {
+    test.skip(
+        testInfo.project.name.includes("Mobile"),
+        "Skip on mobile devices",
+    );
+
+    const prefetchPromise = page.waitForRequest((req) =>
+        req.url().includes(URL_ONE),
+    );
+
+    const prefetched: string[] = [];
+    page.on("request", (req) => {
+        if (req.url().includes("pages/page")) {
+            // remove http://localhost:5173
+            const url = req.url().slice(21);
+            prefetched.push(url);
+        }
+    });
+
+    await page.goto(`${server}test-with-on-pointer-or-key-down.html`);
+
+    await expect(page).toHaveTitle(/Prefetch Test Page/);
+
+    const link = page.getByRole("link", { name: "go to page 1" });
+
+    await expect(link).toBeInViewport();
+    await link.focus();
+    await page.keyboard.down("Enter");
+
+    await prefetchPromise;
+
+    expect(prefetched.length).toBe(1);
+    expect(prefetched).toContainEqual(URL_ONE);
+});
+
+test("only sends prefetch request on 'Enter' keydown event (desktop)", async ({
+    page,
+}, testInfo) => {
+    test.skip(
+        testInfo.project.name.includes("Mobile"),
+        "Skip on mobile devices",
+    );
+
+    const prefetchPromise = page.waitForRequest((req) =>
+        req.url().includes(URL_THREE),
+    );
+
+    const prefetched: string[] = [];
+    page.on("request", (req) => {
+        if (req.url().includes("pages/page")) {
+            // remove http://localhost:5173
+            const url = req.url().slice(21);
+            prefetched.push(url);
+        }
+    });
+
+    await page.goto(`${server}test-with-on-pointer-or-key-down.html`);
+
+    await expect(page).toHaveTitle(/Prefetch Test Page/);
+
+    const link = page.getByRole("link", { name: "go to page 1" });
+    const link2 = page.getByRole("link", { name: "go to page 2" });
+    const link3 = page.getByRole("link", { name: "go to page 3" });
+
+    await expect(link).toBeInViewport();
+    await link.focus();
+    await page.keyboard.down("g");
+
+    await link2.focus();
+    await page.keyboard.down("r");
+
+    await link3.focus();
+    await page.keyboard.down("Enter");
+
+    await prefetchPromise;
+
+    expect(prefetched.length).toBe(1);
     expect(prefetched).toContainEqual(URL_THREE);
 });
