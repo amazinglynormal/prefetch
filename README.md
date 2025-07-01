@@ -36,7 +36,7 @@ no prefetch request will be sent.
 
 `watch` can be confgured by passing an _optional_ options object.
 
-### options.triggerEvent: "inView" | "onHoverOrFocus"
+### options.triggerEvent: "inView" | "onHoverOrFocus" | "onPointerOrKeyDown"
 
 _Default:_ "inView"
 
@@ -46,6 +46,10 @@ The UI event that triggers a prefetch request.
 - `"onHoverOrFocus"`: prefetch is triggered when user hovers over the element with a mouse or when the element has received focus.
 
 **Note:** Most Mobile devices do not have a "hover" state because there's no mouse pointer and focus can also be handled a bit differently on mobile browsers. Therefore, `"onHoverOrFocus"` may only be an appropriate option if you're primarily targeting desktop users.
+
+- `onPointerOrKeyDown`: prefetch is triggered when pointerdown or "Enter" keydown event is on a element.
+
+**Note:** Least aggressive prefetching strategy. It is more so used to give the request a head start as you can be almost certain user intends to go to linked page.
 
 ### options.elements: HTMLAnchorElement | NodeList
 
