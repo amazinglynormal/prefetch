@@ -6,7 +6,7 @@ type IdleCallback = (
     options?: IdleRequestOptions,
 ) => number;
 
-type TriggerEvent = "inView" | "onHoverOrFocus";
+type TriggerEvent = "inView" | "onHoverOrFocus" | "onPointerOrKeyDown";
 
 interface Options {
     triggerEvent?: TriggerEvent;
@@ -50,6 +50,7 @@ export function watch(options?: Options): void {
             );
             break;
         case "onHoverOrFocus":
+        case "onPointerOrKeyDown":
             useEventListener(
                 links,
                 toFetch,
@@ -75,27 +76,48 @@ function useEventListener(
         "focus",
     ];
 
+    const POINTER_KEY_DOWN_EVENTS: (keyof HTMLElementEventMap)[] = [
+        "pointerdown",
+        "keydown",
+    ];
+
     let events: (keyof HTMLElementEventMap)[] = [];
 
     switch (triggerEvent) {
         case "onHoverOrFocus":
             events = HOVER_FOCUS_EVENTS;
+            break;
+        case "onPointerOrKeyDown":
+            events = POINTER_KEY_DOWN_EVENTS;
+            break;
+    }
+
+    function listenerCallback(e: Event) {
+        const link = e.currentTarget as HTMLAnchorElement;
+
+        if (e.type === "keydown" && (e as KeyboardEvent).key != "Enter") {
+            return;
+        }
+
+        if (!fetched.has(link.href)) {
+            toFetch.add(link.href);
+            idleCallback(() => {
+                prefetch(toFetch);
+            });
+
+            fetched.add(link.href);
+        }
+
+        if (e.type === "keydown") {
+            link.removeEventListener("keydown", listenerCallback);
+        }
     }
 
     elements.forEach((element) => {
         if (!shouldIgnore(new URL(element.href), ignore)) {
             events.forEach((event) =>
-                element.addEventListener(event, (event) => {
-                    const link = event.currentTarget as HTMLAnchorElement;
-
-                    if (!fetched.has(link.href)) {
-                        toFetch.add(link.href);
-                        idleCallback(() => {
-                            prefetch(toFetch);
-                        });
-
-                        fetched.add(link.href);
-                    }
+                element.addEventListener(event, listenerCallback, {
+                    once: !event.includes("keydown"),
                 }),
             );
         }
