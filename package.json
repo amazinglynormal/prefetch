@@ -6,7 +6,7 @@
     "files": [
         "dist"
     ],
-    "main": ".dist/prefetch.umd.js",
+    "main": "./dist/prefetch.umd.js",
     "module": "./dist/prefetch.js",
     "exports": {
         ".": {
