@@ -1,3 +1,12 @@
+## [0.1.3](https://github.com/amazinglynormal/prefetch/compare/v0.1.2...v0.1.3) (2025-07-04)
+
+
+### Bug Fixes
+
+* change filename output to index ([e26b02b](https://github.com/amazinglynormal/prefetch/commit/e26b02bd2ab585a0679ea2819f227c724f614e6a))
+
+
+
 ## [0.1.2](https://github.com/amazinglynormal/prefetch/compare/v0.1.1...v0.1.2) (2025-07-04)
 
 
