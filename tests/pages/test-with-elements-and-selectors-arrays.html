@@ -102,7 +102,7 @@
             </section>
         </div>
         <script type="module">
-            import { watch } from "../../dist/prefetch.js";
+            import { watch } from "../../dist/index.js";
             window.addEventListener("DOMContentLoaded", () => {
                 const link = document.querySelector(".test-link-three");
                 watch({ elements: link, selectors: [".test-link-two"] });
