@@ -14,5 +14,5 @@ export default defineConfig({
             formats: ["es", "umd"],
         },
     },
-    plugins: [dts()],
+    plugins: [dts({ tsconfigPath: "./tsconfig.json", rollupTypes: true })],
 });
