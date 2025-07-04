@@ -1,3 +1,12 @@
+## [0.1.1](https://github.com/amazinglynormal/prefetch/compare/v0.1.0...v0.1.1) (2025-07-04)
+
+
+### Bug Fixes
+
+* correct types path properety in package.json ([3c9a864](https://github.com/amazinglynormal/prefetch/commit/3c9a864bad57c8eecd7988fe3e573816b6662d60))
+
+
+
 # 0.1.0 (2025-07-02)
 
 
