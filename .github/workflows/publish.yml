@@ -19,7 +19,7 @@ jobs:
                   node-version: "22"
 
             - name: Install dependencies and build
-              run: npm ci && npx playwright install && npm run build
+              run: npm ci && npx playwright install --with-deps && npm run build
 
             - name: Run tests
               run: npm test
