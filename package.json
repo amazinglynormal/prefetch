@@ -14,7 +14,7 @@
             "require": "./dist/prefetch.umd.js"
         }
     },
-    "types": "./dist/prefetch.d.ts",
+    "types": "./dist/index.d.ts",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
