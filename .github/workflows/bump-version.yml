@@ -20,13 +20,6 @@ jobs:
               with:
                   node-version: "22"
 
-            - name: Install gh CLI
-              uses: cli/gh-action@v2
-
-            - name: Authenticate gh CLI
-              run: |
-                  echo "${{secrets.GITHUB_TOKEN}}" | gh auth login --with-token
-
             - name: Fetch PR commit messages
               id: commits
               run: |
@@ -36,6 +29,8 @@ jobs:
 
                   echo "Commit messages:"
                   cat messages.txt
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Determine version bump
               id: bump
