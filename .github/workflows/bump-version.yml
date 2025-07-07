@@ -1,0 +1,66 @@
+name: merge
+
+on:
+    pull_request:
+        types: [labeled]
+        branches:
+            - main
+
+jobs:
+    ready-to-merge:
+        if: github.event.label.name == 'ready-to-merge'
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
+
+            - name: Install gh CLI
+              uses: cli/gh-action@v2
+
+            - name: Authenticate gh CLI
+              run: |
+                  echo "${{secrets.GITHUB_TOKEN}}" | gh auth login --with-token
+
+            - name: Fetch PR commit messages
+              id: commits
+              run: |
+                  PR_NUMBER=${{ github.event.pull_request.number }}
+                  gh pr view $PR_NUMBER --repo ${{ github.repository }} --json commits \
+                      --jq '.commits[].commit.message' > messages.txt
+
+                  echo "Commit messages:"
+                  cat messages.txt
+
+            - name: Determine version bump
+              id: bump
+              run: |
+                  bump="patch"
+                  while IFS= read -r line; do
+                      echo "Checking: $line"
+                      if [[ "$line" == feat* ]]; then
+                      bump="minor"
+                      elif [[ "$line" == *!:* || "$line" == *BREAKING\ CHANGE* ]]; then
+                      bump="major"
+                      break
+                      fi
+                  done < messages.txt
+
+                  echo "Version bump: $bump"
+                  echo "bump=$bump" >> $GITHUB_OUTPUT
+
+            - name: Bump version
+              run: |
+                  npm version ${{steps.bump.outputs.bump}}
+
+            - name: Commit and push updated package.json and changelog
+              run: |
+                  git config user.name "github-actions"
+                  git config user.email "github-actions@github.com"
+                  git commit -m "chore: bump version based on commits"
+                  git push
