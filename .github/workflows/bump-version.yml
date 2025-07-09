@@ -54,11 +54,11 @@ jobs:
 
             - name: Bump version
               run: |
+                  git config user.name "${{ github.event.pull_request.user.login }}"
+                  git config user.email "${{ github.event.pull_request.user.login }}@users.noreply.github.com"
                   npm version ${{steps.bump.outputs.bump}}
 
             - name: Commit and push updated package.json and changelog
               run: |
-                  git config user.name "${{ github.event.pull_request.user.login }}"
-                  git config user.email "${{ github.event.pull_request.user.login }}@users.noreply.github.com"
                   git commit -m "chore: bump version based on commits"
                   git push
