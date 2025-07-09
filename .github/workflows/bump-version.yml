@@ -28,7 +28,7 @@ jobs:
               run: |
                   PR_NUMBER=${{ github.event.pull_request.number }}
                   gh pr view $PR_NUMBER --repo ${{ github.repository }} --json commits \
-                      --jq '.commits[].commit.message' >> messages.txt
+                      --jq '.commits[].messageHeadline' >> messages.txt
 
                   echo "Commit messages:"
                   cat messages.txt
@@ -56,6 +56,7 @@ jobs:
               run: |
                   git config user.name "${{ github.event.pull_request.user.login }}"
                   git config user.email "${{ github.event.pull_request.user.login }}@users.noreply.github.com"
+                  git checkout ${{ github.head_ref }}
                   npm version ${{steps.bump.outputs.bump}}
 
             - name: Push updated package.json and changelog
