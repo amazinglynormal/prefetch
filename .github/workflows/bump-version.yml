@@ -28,7 +28,7 @@ jobs:
               run: |
                   PR_NUMBER=${{ github.event.pull_request.number }}
                   gh pr view $PR_NUMBER --repo ${{ github.repository }} --json commits \
-                      --jq '.commits[].commit.message' > messages.txt
+                      --jq '.commits[].commit.message' >> messages.txt
 
                   echo "Commit messages:"
                   cat messages.txt
@@ -52,13 +52,12 @@ jobs:
                   echo "Version bump: $bump"
                   echo "bump=$bump" >> $GITHUB_OUTPUT
 
-            - name: Bump version
+            - name: Bump version and update Changelog
               run: |
                   git config user.name "${{ github.event.pull_request.user.login }}"
                   git config user.email "${{ github.event.pull_request.user.login }}@users.noreply.github.com"
                   npm version ${{steps.bump.outputs.bump}}
 
-            - name: Commit and push updated package.json and changelog
+            - name: Push updated package.json and changelog
               run: |
-                  git commit -m "chore: bump version based on commits"
                   git push
