@@ -5,17 +5,17 @@ function supportsSpecRulesAPI(): boolean {
     );
 }
 
-function appendSpecRuleToDOM(hrefs: Set<string>): void {
+function appendSpecRuleToDOM(
+    hrefs: Set<string>,
+    action: "prefetch" | "prerender",
+): void {
     const specScript = document.createElement("script");
     specScript.type = "speculationrules";
-    const specRules = {
-        prefetch: [
-            {
-                source: "list",
-                urls: [...hrefs],
-            },
-        ],
-    };
+
+    const list = [{ source: "list", urls: [...hrefs] }];
+
+    const specRules =
+        action === "prefetch" ? { prefetch: list } : { prerender: list };
 
     specScript.textContent = JSON.stringify(specRules);
     document.body.append(specScript);
@@ -53,9 +53,11 @@ function prefetchUsingFetchAPI(hrefs: Set<string>) {
     });
 }
 
-export function prefetch(toFetch: Set<string>): void {
-    if (supportsSpecRulesAPI()) {
-        appendSpecRuleToDOM(toFetch);
+export function prefetch(toFetch: Set<string>, prerender: boolean): void {
+    if (prerender && supportsSpecRulesAPI()) {
+        appendSpecRuleToDOM(toFetch, "prerender");
+    } else if (supportsSpecRulesAPI()) {
+        appendSpecRuleToDOM(toFetch, "prefetch");
     } else if (supportsPrefetchResourceHint()) {
         appendPrefetchResourceHintToDOM(toFetch);
     } else {
