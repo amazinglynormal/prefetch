@@ -85,6 +85,16 @@ _Default:_ 0
 
 The percentage of the element visible in the viewport before prefetch request is triggered. An inViewThreshold of 1 means 100% of element must be in viewport for the prefetch request to trigger.
 
+### options.prerenderWhenPossible: boolean
+
+_Default: false_
+
+[Please carefully consider which pages you would like to prerender](https://developer.mozilla.org/en-US/docs/Web/API/Speculation_Rules_API#unsafe_prerendering)
+
+Will append make prerender rather than prefetch request.
+
+**Note:** If Speculation Rules API is not supported by users browser, prefetch will be used as a fallback.
+
 ## Other Resources
 
 - [Web.dev's guide to prefetching](https://web.dev/articles/link-prefetch)
