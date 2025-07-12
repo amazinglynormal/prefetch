@@ -15,6 +15,7 @@ interface Options {
     ignore?: string[];
     delayMilliseconds?: number;
     inViewThreshold?: number;
+    prerenderWhenPossible?: boolean;
 }
 
 export function watch(options?: Options): void {
@@ -29,6 +30,7 @@ export function watch(options?: Options): void {
     const ignore = options?.ignore || [];
     const delayMilliseconds = options?.delayMilliseconds || 0;
     const inViewThreshold = options?.inViewThreshold || 0;
+    const prerenderWhenPossible = options?.prerenderWhenPossible || false;
 
     const idleCallback: IdleCallback = useIdleCallback();
 
@@ -47,6 +49,7 @@ export function watch(options?: Options): void {
                 delayMilliseconds,
                 inViewThreshold,
                 ignore,
+                prerenderWhenPossible,
             );
             break;
         case "onHoverOrFocus":
@@ -58,6 +61,7 @@ export function watch(options?: Options): void {
                 idleCallback,
                 triggerEvent,
                 ignore,
+                prerenderWhenPossible,
             );
             break;
     }
@@ -70,6 +74,7 @@ function useEventListener(
     idleCallback: IdleCallback,
     triggerEvent: TriggerEvent,
     ignore: string[],
+    prerenderWhenPossible: boolean,
 ) {
     const HOVER_FOCUS_EVENTS: (keyof HTMLElementEventMap)[] = [
         "mouseover",
@@ -102,7 +107,7 @@ function useEventListener(
         if (!fetched.has(link.href)) {
             toFetch.add(link.href);
             idleCallback(() => {
-                prefetch(toFetch);
+                prefetch(toFetch, prerenderWhenPossible);
             });
 
             fetched.add(link.href);
@@ -132,6 +137,7 @@ function useIntersectionObserver(
     delayMilliseconds: number,
     inViewThreshold: number,
     ignore: string[],
+    prerenderWhenPossible: boolean,
 ) {
     const observer = new IntersectionObserver(
         (entries, observer) => {
@@ -151,7 +157,7 @@ function useIntersectionObserver(
                             !isSlowConnectionType()
                         ) {
                             idleCallback(() => {
-                                prefetch(toFetch);
+                                prefetch(toFetch, prerenderWhenPossible);
                             });
 
                             fetched.add(link.href);
