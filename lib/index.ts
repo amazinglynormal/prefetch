@@ -92,6 +92,7 @@ function useEventListener(
         case "onHoverOrFocus":
             events = HOVER_FOCUS_EVENTS;
             break;
+
         case "onPointerOrKeyDown":
             events = POINTER_KEY_DOWN_EVENTS;
             break;
@@ -106,6 +107,7 @@ function useEventListener(
 
         if (!fetched.has(link.href)) {
             toFetch.add(link.href);
+
             idleCallback(() => {
                 prefetch(toFetch, prerenderWhenPossible);
             });
