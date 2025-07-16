@@ -24,6 +24,88 @@ jobs:
             - name: Run tests
               run: npm test
 
+    bump-version:
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: write
+
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
+
+            - name: Get associated PR
+              id: pr_number
+              run: |
+                  PR_NUMBER=$(gh pr list --state merged --search "${{ github.sha }}" --json number --jq '.[].number')
+                  echo "pr_num=$PR_NUMBER" >> $GITHUB_OUTPUT
+
+            - name: Check PR labels
+              id: check_labels
+              run: |
+                  PR_LABELS=$(gh pr view ${{ steps.pr_number.outputs.pr_num}} --json labels --jq '.[]')
+                  LABELS=$(echo "$PR_LABELS" | jq -r '.labels[].name')
+
+                  if echo "$LABELS" | grep -q "bump version after merge"; then
+                    echo "Bump required"
+                    echo "should_bump=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "No bump label, skipping"
+                    echo "should_bump=false" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Fetch PR commit messages
+              if: steps.check_labels.outputs.should_bump == 'true'
+              id: commits
+              run: |
+                  PR_NUMBER=${{ steps.pr_number.outputs.pr_num }}
+                  gh pr view $PR_NUMBER --repo ${{ github.repository }} --json commits \
+                  --jq '.commits[].messageHeadline' > messages.txt
+
+                  echo "Commit messages:"
+                  cat messages.txt
+                  env:
+                    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Determine version bump
+              if: steps.check_labels.outputs.should_bump == 'true'
+              id: bump
+              run: |
+                  bump="patch"
+                  while IFS= read -r line; do
+                      echo "Checking: $line"
+                      if [[ "$line" == feat* ]]; then
+                      bump="minor"
+                      elif [[ "$line" == *!:* || "$line" == *BREAKING\ CHANGE* ]]; then
+                      bump="major"
+                      break
+                      fi
+                  done < messages.txt
+
+                  echo "Version bump: $bump"
+                  echo "bump=$bump" >> $GITHUB_OUTPUT
+
+            - name: Install dependencies
+              if: steps.check_labels.outputs.should_bump == 'true'
+              run: npm ci
+
+            - name: Bump version and update Changelog
+              if: steps.check_labels.outputs.should_bump == 'true'
+              run: |
+                  git config user.name github-actions
+                  git config user.email github-actions@github.com
+                  npm version ${{steps.bump.outputs.bump}}
+
+            - name: Push updated package.json and changelog
+              if: steps.check_labels.outputs.should_bump == 'true'
+              run: |
+                  git push
+
     publish:
         needs: test
         runs-on: ubuntu-latest
