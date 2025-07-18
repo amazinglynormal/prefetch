@@ -44,12 +44,15 @@ jobs:
               run: |
                   PR_NUMBER=$(gh pr list --state merged --search "${{ github.sha }}" --json number --jq '.[].number')
                   echo "pr_num=$PR_NUMBER" >> $GITHUB_OUTPUT
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Check PR labels
               id: check_labels
               run: |
                   PR_LABELS=$(gh pr view ${{ steps.pr_number.outputs.pr_num}} --json labels --jq '.[]')
-                  LABELS=$(echo "$PR_LABELS" | jq -r '.labels[].name')
+                  LABELS=$(echo "$PR_LABELS" | jq -r '.[].name')
+
 
                   if echo "$LABELS" | grep -q "bump version after merge"; then
                     echo "Bump required"
@@ -58,6 +61,8 @@ jobs:
                     echo "No bump label, skipping"
                     echo "should_bump=false" >> $GITHUB_OUTPUT
                   fi
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Fetch PR commit messages
               if: steps.check_labels.outputs.should_bump == 'true'
@@ -69,8 +74,8 @@ jobs:
 
                   echo "Commit messages:"
                   cat messages.txt
-                  env:
-                    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Determine version bump
               if: steps.check_labels.outputs.should_bump == 'true'
@@ -106,13 +111,27 @@ jobs:
               run: |
                   git push
 
+            - name: Upload updated files
+              uses: actions/upload-artifact@v4
+              with:
+                  name: updated-files
+                  path: |
+                      package.json
+                      package-lock.json
+                      CHANGELOG.md
+
     publish:
-        needs: test
+        needs: [test, bump-version]
         runs-on: ubuntu-latest
 
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
+
+            - name: Download updates files
+              uses: actions/download-artifact@v4
+              with:
+                  name: updated-files
 
             - name: Set up Node
               uses: actions/setup-node@v4
