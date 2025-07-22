@@ -1,0 +1,69 @@
+name: bump-version
+
+on:
+    pull_request:
+        types: [labeled]
+
+jobs:
+    bump-version:
+        if: github.event.label.name == 'bump version'
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: write
+
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
+
+            - name: Fetch PR Commit Messages
+              id: commits
+              run: |
+                  PR_NUMBER=${{github.event.pull_request.number}}
+                  gh pr view $PR_NUMBER --repo ${{ github.repository }} --json commits \
+                    --jq '.commits[].messageHeadline' > messages.txt
+
+                    echo "Commit messages:"
+                    cat messages.txt
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Determine version bump
+              id: bump
+              run: |
+                  bump="patch"
+                  while IFS= read -r line; do
+                      echo "Checking: $line"
+                      if [[ "$line" == feat* ]]; then
+                      bump="minor"
+                      elif [[ "$line" == *!:* || "$line" == *BREAKING\ CHANGE* ]]; then
+                      bump="major"
+                      break
+                      fi
+                  done < messages.txt
+
+                  echo "Version bump: $bump"
+                  echo "bump=$bump" >> $GITHUB_OUTPUT
+
+            - name: Install dependencies
+              run: npm ci
+            - name: Configure git
+              run: |
+                  git config user.name github-actions
+                  git config user.email github-actions@github.com
+
+            - name: Bump version and update Changelog
+              run: npm version ${{steps.bump.outputs.bump}}
+
+            - name: Pull latest changes from remote (rebase)
+              run: git pull --rebase origin ${{ github.head_ref}}
+
+            - name: Push updated package.json and changelog
+              run: git push origin HEAD:${{ github.head_ref}}
