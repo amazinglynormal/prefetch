@@ -24,8 +24,34 @@ jobs:
             - name: Run tests
               run: npm test
 
+    check-pr-labels:
+        runs-on: ubuntu-latest
+        outputs:
+            should_publish: ${{ steps.should_publish.outputs.should_publish }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Check PR labels
+              id: should_publish
+              run: |
+                  PR_LABELS=$(gh pr list --state merged --search "${{ github.sha }}" --json labels --jq '.[].labels[].name')
+                  if echo "$PR_LABELS" | grep -q "publish"; then
+                    echo "Should publish"
+                    echo "should_publish=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "No publish label, skipping"
+                    echo "should_publish=false" >> $GITHUB_OUTPUT
+                  fi
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     publish:
-        needs: test
+        needs: [test, check-pr-labels]
+        if: needs.check-pr-labels.outputs.should_publish == 'true'
         runs-on: ubuntu-latest
 
         steps:
